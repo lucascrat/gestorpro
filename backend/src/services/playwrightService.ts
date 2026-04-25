@@ -16,10 +16,10 @@ export async function renewClientInPanel(
   try {
     console.log(`[Playwright] Iniciando renovação para: ${clientName}`);
 
-    // Lazy load - só carrega Playwright se for usado
     let chromium: any;
     try {
-      const playwright = await import('playwright');
+      // @ts-ignore - playwright é opcional, instalado em separado
+      const playwright = require('playwright');
       chromium = playwright.chromium;
     } catch (err) {
       console.warn('[Playwright] Pacote não instalado. Renovação automática desativada.');
