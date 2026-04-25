@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gestor_postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-gestor}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-gestor123}
+      POSTGRES_DB: ${DB_NAME:-gestor_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - gestor_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-gestor}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gestor_backend
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${DB_USER:-gestor}:${DB_PASSWORD:-gestor123}@postgres:5432/${DB_NAME:-gestor_db}
+      JWT_SECRET: ${JWT_SECRET:-seu_jwt_secret_seguro}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      EFI_CLIENT_ID: ${EFI_CLIENT_ID}
+      EFI_CLIENT_SECRET: ${EFI_CLIENT_SECRET}
+      EFI_WEBHOOK_URL: ${EFI_WEBHOOK_URL}
+      PANEL_ADMIN_USERNAME: ${PANEL_ADMIN_USERNAME}
+      PANEL_ADMIN_PASSWORD: ${PANEL_ADMIN_PASSWORD}
+      PANEL_URL: ${PANEL_URL:-https://cms.startpainel.cc}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - gestor_network
+    volumes:
+      - ./backend:/app
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gestor_frontend
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://backend:3001}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - gestor_network
+    volumes:
+      - ./frontend:/app
+
+volumes:
+  postgres_data:
+
+networks:
+  gestor_network:
+    driver: bridge
