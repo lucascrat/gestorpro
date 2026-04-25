@@ -1,22 +1,6 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: ${DB_USER:-gestor}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-gestor123}
-      POSTGRES_DB: ${DB_NAME:-gestor_db}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - gestor_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-gestor}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   backend:
     build:
       context: ./backend
@@ -24,7 +8,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      DATABASE_URL: postgresql://${DB_USER:-gestor}:${DB_PASSWORD:-gestor123}@postgres:5432/${DB_NAME:-gestor_db}
+      DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET:-seu_jwt_secret_seguro}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       EFI_CLIENT_ID: ${EFI_CLIENT_ID}
@@ -36,9 +20,6 @@ services:
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     expose:
       - "3001"
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - gestor_network
 
@@ -54,9 +35,6 @@ services:
       - backend
     networks:
       - gestor_network
-
-volumes:
-  postgres_data:
 
 networks:
   gestor_network:
