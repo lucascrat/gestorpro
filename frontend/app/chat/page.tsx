@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -129,7 +129,7 @@ export default function ChatPage() {
                   <p className="text-xs font-semibold text-gray-700 mb-3">
                     Escaneie o QR Code para pagar R$ {paymentState?.amount?.toFixed(2)}
                   </p>
-                  <QRCode value={msg.pixQRCode} size={256} level="H" includeMargin={true} />
+                  <QRCodeSVG value={msg.pixQRCode} size={256} level="H" includeMargin={true} />
                   <p className="text-xs text-gray-500 mt-3">
                     ID: {paymentState?.transactionId}
                   </p>
