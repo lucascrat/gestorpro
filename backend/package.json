@@ -7,11 +7,11 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "migrate": "tsx src/database/migrations.ts"
+    "migrate": "tsx src/database/migrations.ts",
+    "postinstall": "npx playwright install chromium --with-deps"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.27.0",
-    "@google-cloud/vertexai": "^1.0.0",
+    "@google/generative-ai": "^0.15.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
